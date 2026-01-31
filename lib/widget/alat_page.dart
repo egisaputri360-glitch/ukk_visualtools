@@ -19,10 +19,10 @@ class _AlatScreenState extends State<AlatScreen> {
 
   // Data alat sample
   List<Alat> alatList = [
-    Alat('Camera Sony', 'Alat digital', StatusAlat.bagus),
-    Alat('Gimbal Stabilizer', 'Alat digital', StatusAlat.bagus),
-    Alat('Cat Warna', 'Alat Gambar', StatusAlat.rusak),
-    Alat('Sketch Book', 'Alat Gambar', StatusAlat.rusak),
+    Alat('camera', 'Alat digital', StatusAlat.bagus),
+    Alat('stabilizer', 'Alat digital', StatusAlat.bagus),
+    Alat('catwarna', 'Alat Gambar', StatusAlat.rusak),
+    Alat('sketchbook', 'Alat Gambar', StatusAlat.rusak),
     Alat('Drawing Pen', 'Alat Gambar', StatusAlat.rusak),
     Alat('Sketch Book', 'Alat Gambar', StatusAlat.bagus),
   ];
