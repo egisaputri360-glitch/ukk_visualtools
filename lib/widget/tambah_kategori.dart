@@ -1,14 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class TambahKategoriWidget extends StatelessWidget {
-  final Function(String) onSimpan;
+class TambahKategoriWidget extends StatefulWidget {
+  const TambahKategoriWidget({super.key});
 
-  const TambahKategoriWidget({super.key, required this.onSimpan});
+  @override
+  State<TambahKategoriWidget> createState() => _TambahKategoriWidgetState();
+}
+
+class _TambahKategoriWidgetState extends State<TambahKategoriWidget> {
+  final _namaC = TextEditingController();
+  bool loading = false;
+
+  Future<void> simpan() async {
+    setState(() => loading = true);
+
+    await Supabase.instance.client.from('kategori').insert({
+      'nama': _namaC.text,
+    });
+
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController namaController = TextEditingController();
-
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -21,8 +36,9 @@ class TambahKategoriWidget extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 15),
+
             TextField(
-              controller: namaController,
+              controller: _namaC,
               decoration: InputDecoration(
                 hintText: 'Nama kategori',
                 border: OutlineInputBorder(
@@ -30,28 +46,23 @@ class TambahKategoriWidget extends StatelessWidget {
                 ),
               ),
             ),
+
             const SizedBox(height: 20),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Batal'),
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                  ),
-                  onPressed: () {
-                    if (namaController.text.isNotEmpty) {
-                      onSimpan(namaController.text);
-                    }
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Simpan'),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  onPressed: loading ? null : simpan,
+                  child: loading
+                      ? const CircularProgressIndicator()
+                      : const Text('Simpan'),
                 ),
               ],
             )

@@ -1,29 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class EditPenggunaDialog extends StatelessWidget {
-  final String namaAwal;
-  final String roleAwal;
-  final String emailAwal;
+class EditPenggunaDialog extends StatefulWidget {
+  final int? id;
+  final String? nama;
+  final String? role;
+  final String? email;
 
   const EditPenggunaDialog({
     super.key,
-    required this.namaAwal,
-    required this.roleAwal,
-    required this.emailAwal,
+    this.id,
+    this.nama,
+    this.role,
+    this.email,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final namaController = TextEditingController(text: namaAwal);
-    final roleController = TextEditingController(text: roleAwal);
-    final emailController = TextEditingController(text: emailAwal);
-    final passwordController = TextEditingController();
+  State<EditPenggunaDialog> createState() => _EditPenggunaDialogState();
+}
 
-    return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+class _EditPenggunaDialogState extends State<EditPenggunaDialog> {
+  final supabase = Supabase.instance.client;
+
+  late TextEditingController nama;
+  late TextEditingController role;
+  late TextEditingController email;
+
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    nama = TextEditingController(text: widget.nama ?? '');
+    role = TextEditingController(text: widget.role ?? '');
+    email = TextEditingController(text: widget.email ?? '');
+  }
+
+  // 🔹 POPUP BERHASIL (MENYATU DI FILE INI)
+  void _showBerhasil() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Center(
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(Icons.check_circle, color: Colors.green, size: 50),
+              SizedBox(height: 12),
+              Text(
+                'Berhasil',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
       ),
+    );
+
+    Future.delayed(const Duration(milliseconds: 1300), () {
+      Navigator.pop(context); // tutup popup
+    });
+  }
+
+  Future<void> simpan() async {
+  if (widget.id == null) return; // ⬅️ PENTING
+
+  setState(() => loading = true);
+
+  await supabase.from('users').update({
+    'nama': nama.text,
+    'role': role.text,
+    'email': email.text,
+  }).eq('id', widget.id!); // ⬅️ pakai !
+    if (!mounted) return;
+
+    _showBerhasil();
+
+    await Future.delayed(const Duration(milliseconds: 1400));
+    Navigator.pop(context, true); // tutup dialog edit + kirim result
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -35,65 +101,28 @@ class EditPenggunaDialog extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            _inputField(label: 'Nama', controller: namaController),
-            _inputField(label: 'Role', controller: roleController),
-            _inputField(label: 'Email', controller: emailController),
-            _inputField(
-              label: 'Kata sandi',
-              controller: passwordController,
-              obscure: true,
-            ),
+            _input(nama, 'Nama'),
+            _input(role, 'Role'),
+            _input(email, 'Email'),
 
-            const SizedBox(height: 25),
+            const SizedBox(height: 20),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // ===== BATAL =====
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
+                TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Batal'),
                 ),
-
-                // ===== SIMPAN =====
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade300,
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  onPressed: () {
-                    // 🔑 SIMPAN ROOT CONTEXT
-                    final rootContext =
-                        Navigator.of(context, rootNavigator: true).context;
-
-                    // 1️⃣ Tutup dialog edit
-                    Navigator.pop(context);
-
-                    // 2️⃣ Tampilkan popup berhasil
-                    Future.microtask(() {
-                      showDialog(
-                        context: rootContext,
-                        barrierDismissible: false,
-                        builder: (_) => const EditSuccessDialog(),
-                      );
-
-                      // 3️⃣ Tutup otomatis
-                      Future.delayed(const Duration(milliseconds: 1500), () {
-                        Navigator.of(rootContext).pop();
-                      });
-                    });
-                  },
-                  child: const Text('Simpan'),
+                  onPressed: loading ? null : simpan,
+                  child: loading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Simpan'),
                 ),
               ],
             ),
@@ -103,50 +132,15 @@ class EditPenggunaDialog extends StatelessWidget {
     );
   }
 
-  Widget _inputField({
-    required String label,
-    required TextEditingController controller,
-    bool obscure = false,
-  }) {
+  Widget _input(TextEditingController c, String label) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
-        controller: controller,
-        obscureText: obscure,
+        controller: c,
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        ),
-      ),
-    );
-  }
-}
-
-// ================= POPUP BERHASIL EDIT =================
-class EditSuccessDialog extends StatelessWidget {
-  const EditSuccessDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: SizedBox(
-        height: 120,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.check_circle, color: Colors.green, size: 40),
-              SizedBox(height: 8),
-              Text(
-                'Berhasil',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-            ],
           ),
         ),
       ),

@@ -1,131 +1,149 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class TambahPenggunaDialog extends StatelessWidget {
+class TambahPenggunaDialog extends StatefulWidget {
   const TambahPenggunaDialog({super.key});
+
+  @override
+  State<TambahPenggunaDialog> createState() => _TambahPenggunaDialogState();
+}
+
+class _TambahPenggunaDialogState extends State<TambahPenggunaDialog> {
+  final supabase = Supabase.instance.client;
+
+  final namaController = TextEditingController();
+  final roleController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final kelasController = TextEditingController();     // ⬅️ BARU
+  final jurusanController = TextEditingController();   // ⬅️ BARU
+
+  bool loading = false;
+
+  Future<void> simpan() async {
+    if (namaController.text.isEmpty ||
+        roleController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        kelasController.text.isEmpty ||
+        jurusanController.text.isEmpty) {
+      return;
+    }
+
+    setState(() => loading = true);
+
+    await supabase.from('users').insert({
+      'nama': namaController.text,
+      'role': roleController.text,
+      'email': emailController.text,
+      'password': passwordController.text,
+      'kelas': kelasController.text,       // ⬅️ BARU
+      'jurusan': jurusanController.text,   // ⬅️ BARU
+    });
+
+    setState(() => loading = false);
+
+    if (context.mounted) {
+      Navigator.pop(context, true); // ⬅️ balik ke UserPage
+    }
+  }
+
+  Widget input(
+    String label,
+    TextEditingController controller, {
+    bool obscure = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          obscureText: obscure,
+          decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Tambah Pengguna',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 20),
-
-            _inputField(label: 'Nama'),
-            _inputField(label: 'Role'),
-            _inputField(label: 'Email'),
-            _inputField(label: 'Kata sandi', obscure: true),
-
-            const SizedBox(height: 25),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // ===== BATAL =====
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Batal'),
-                ),
-
-                // ===== SIMPAN =====
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade300,
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  onPressed: () {
-                    // 🔑 SIMPAN CONTEXT ROOT
-                    final rootContext =
-                        Navigator.of(context, rootNavigator: true).context;
-
-                    // 1️⃣ Tutup dialog tambah pengguna
-                    Navigator.pop(context);
-
-                    // 2️⃣ Tampilkan popup berhasil
-                    Future.microtask(() {
-                      showDialog(
-                        context: rootContext,
-                        barrierDismissible: false,
-                        builder: (_) => const SuccessDialog(),
-                      );
-
-                      // 3️⃣ Tutup otomatis
-                      Future.delayed(const Duration(milliseconds: 1500), () {
-                        Navigator.of(rootContext).pop();
-                      });
-                    });
-                  },
-                  child: const Text('Simpan'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _inputField({
-    required String label,
-    bool obscure = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: TextField(
-        obscureText: obscure,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        ),
-      ),
-    );
-  }
-}
-
-// ================= POPUP BERHASIL =================
-class SuccessDialog extends StatelessWidget {
-  const SuccessDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: SizedBox(
-        height: 120,
-        child: Center(
+        child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.check_circle, color: Colors.green, size: 40),
-              SizedBox(height: 8),
-              Text(
-                'Berhasil',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Tambah Pengguna',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              input('Nama :', namaController),
+              const SizedBox(height: 12),
+
+              input('Role :', roleController),
+              const SizedBox(height: 12),
+
+              input('Email :', emailController),
+              const SizedBox(height: 12),
+
+              input('Kata sandi :', passwordController, obscure: true),
+              const SizedBox(height: 12),
+
+              input('Kelas :', kelasController),        // ⬅️ BARU
+              const SizedBox(height: 12),
+
+              input('Jurusan :', jurusanController),    // ⬅️ BARU
+              const SizedBox(height: 24),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Batal'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.shade300,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    onPressed: loading ? null : simpan,
+                    child: loading
+                        ? const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child:
+                                CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Simpan'),
+                  ),
+                ],
               ),
             ],
           ),

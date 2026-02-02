@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class KategoriPage extends StatefulWidget {
   const KategoriPage({super.key});
@@ -9,158 +10,62 @@ class KategoriPage extends StatefulWidget {
 }
 
 class _KategoriPageState extends State<KategoriPage> {
+  final supabase = Supabase.instance.client;
   final TextEditingController _namaController = TextEditingController();
 
-  final List<Map<String, dynamic>> kategoriList = [
-    {"title": "Alat Gambar", "count": 4},
-    {"title": "Alat Digital", "count": 3},
-    {"title": "Alat Videografi", "count": 2},
-  ];
+  /// ================= GET DATA =================
+  Future<List<dynamic>> fetchKategori() async {
+    final data = await supabase
+        .from('kategori')
+        .select()
+        .order('id', ascending: false);
 
-  // --- 1. FUNGSI TAMBAH ---
-  void _showTambahDialog() {
+    return data;
+  }
+
+  /// ================= TAMBAH =================
+  Future<void> tambahKategori() async {
+    if (_namaController.text.trim().isEmpty) return;
+
+    await supabase.from('kategori').insert({
+      'nama': _namaController.text.trim(),
+    });
+
     _namaController.clear();
-    _showFormDialog(
-      title: "Tambah alat",
-      onSave: () {
-        if (_namaController.text.isEmpty) return;
-        setState(() {
-          kategoriList.add({"title": _namaController.text, "count": 0});
-        });
-        Navigator.pop(context);
-        _showBerhasilPopup("Kategori berhasil ditambahkan");
-      },
-    );
+    Navigator.pop(context);
+    setState(() {});
+    _popupBerhasil('Kategori berhasil ditambahkan');
   }
 
-  // --- 2. FUNGSI EDIT ---
-  void _showEditDialog(int index) {
-    _namaController.text = kategoriList[index]["title"];
-    _showFormDialog(
-      title: "Edit alat",
-      onSave: () {
-        if (_namaController.text.isEmpty) return;
-        setState(() {
-          kategoriList[index]["title"] = _namaController.text;
-        });
-        Navigator.pop(context);
-        _showBerhasilPopup("Kategori berhasil diubah");
-      },
-    );
+  /// ================= EDIT =================
+  Future<void> editKategori(int id) async {
+    if (_namaController.text.trim().isEmpty) return;
+
+    await supabase
+        .from('kategori')
+        .update({'nama': _namaController.text.trim()})
+        .eq('id', id);
+
+    _namaController.clear();
+    Navigator.pop(context);
+    setState(() {});
+    _popupBerhasil('Kategori berhasil diubah');
   }
 
-  // --- 3. FUNGSI HAPUS (SESUAI GAMBAR FIGMA) ---
-  void _showHapusDialog(int index) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  "Anda yakin ingin\nmenghapus ini ?",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                const SizedBox(height: 25),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Tombol Batal
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF4D4D),
-                        shape: StadiumBorder(),
-                        minimumSize: const Size(100, 40),
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Batal", style: TextStyle(color: Colors.white)),
-                    ),
-                    // Tombol Simpan (Aksi Hapus)
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade400,
-                        foregroundColor: Colors.black,
-                        shape: StadiumBorder(),
-                        minimumSize: const Size(100, 40),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          kategoriList.removeAt(index);
-                        });
-                        Navigator.pop(context);
-                        _showBerhasilPopup("Data berhasil dihapus");
-                      },
-                      child: const Text("Simpan"),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  /// ================= HAPUS =================
+  Future<void> hapusKategori(int id) async {
+    await supabase.from('kategori').delete().eq('id', id);
+    Navigator.pop(context);
+    setState(() {});
+    _popupBerhasil('Kategori berhasil dihapus');
   }
 
-  // --- REUSABLE FORM DIALOG (INPUT FIELD) ---
-  void _showFormDialog({required String title, required VoidCallback onSave}) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.green.shade300),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: TextField(
-                    controller: _namaController,
-                    decoration: const InputDecoration(hintText: "nama :", border: InputBorder.none),
-                  ),
-                ),
-                const SizedBox(height: 25),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF4D4D), shape: StadiumBorder(), minimumSize: const Size(100, 40)),
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Batal", style: TextStyle(color: Colors.white)),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade400, foregroundColor: Colors.black, shape: StadiumBorder(), minimumSize: const Size(100, 40)),
-                      onPressed: onSave,
-                      child: const Text("Simpan"),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showBerhasilPopup(String pesan) {
+  /// ================= POPUP =================
+  void _popupBerhasil(String text) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
+      builder: (_) {
         Timer(const Duration(seconds: 1), () => Navigator.pop(context));
         return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -169,9 +74,9 @@ class _KategoriPageState extends State<KategoriPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.check_circle, color: Colors.green, size: 48),
+                const Icon(Icons.check_circle, color: Colors.green, size: 40),
                 const SizedBox(height: 10),
-                Text(pesan, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -180,6 +85,65 @@ class _KategoriPageState extends State<KategoriPage> {
     );
   }
 
+  /// ================= FORM DIALOG =================
+  void _formDialog({
+    required String title,
+    required VoidCallback onSave,
+  }) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 18)),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _namaController,
+                decoration: InputDecoration(
+                  hintText: 'nama :',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 25),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                    ),
+                    onPressed: () {
+                      _namaController.clear();
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Batal'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.shade400,
+                      foregroundColor: Colors.black,
+                    ),
+                    onPressed: onSave,
+                    child: const Text('Simpan'),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// ================= UI =================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,91 +156,103 @@ class _KategoriPageState extends State<KategoriPage> {
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
                 color: Color(0xFFB8D8A0),
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  const Text("Kategori", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-                          child: const TextField(
-                            decoration: InputDecoration(hintText: "Cari...", border: InputBorder.none, icon: Icon(Icons.search)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                        child: IconButton(icon: const Icon(Icons.add), onPressed: _showTambahDialog),
-                      ),
-                    ],
+                  const Expanded(
+                    child: Text(
+                      "Kategori",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
                   ),
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      _namaController.clear();
+                      _formDialog(
+                        title: 'Tambah Kategori',
+                        onSave: tambahKategori,
+                      );
+                    },
+                  )
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            // LIST VIEW
+
+            /// LIST
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: kategoriList.length,
-                itemBuilder: (context, index) {
-                  return KategoriCard(
-                    title: kategoriList[index]["title"],
-                    count: kategoriList[index]["count"],
-                    onEdit: () => _showEditDialog(index),
-                    onDelete: () => _showHapusDialog(index), // Memanggil dialog hapus
+              child: FutureBuilder<List<dynamic>>(
+                future: fetchKategori(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(
+                        child: CircularProgressIndicator());
+                  }
+
+                  final data = snapshot.data!;
+
+                  if (data.isEmpty) {
+                    return const Center(child: Text('Data kosong'));
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      final item = data[index];
+
+                      final int id = item['id'];
+                      final String nama =
+                          item['nama']?.toString() ?? '-';
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border:
+                              Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                nama,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined),
+                              onPressed: () {
+                                _namaController.text = nama;
+                                _formDialog(
+                                  title: 'Edit Kategori',
+                                  onSave: () => editKategori(id),
+                                );
+                              },
+                            ),
+                            IconButton(
+                              icon:
+                                  const Icon(Icons.delete_outline),
+                              onPressed: () => hapusKategori(id),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   );
                 },
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class KategoriCard extends StatelessWidget {
-  final String title;
-  final int count;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
-  const KategoriCard({super.key, required this.title, required this.count, required this.onEdit, required this.onDelete});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text("Alat : $count", style: const TextStyle(color: Colors.grey, fontSize: 12)),
-              ],
-            ),
-          ),
-          IconButton(icon: const Icon(Icons.edit_outlined, size: 20), onPressed: onEdit),
-          IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: Colors.black), onPressed: onDelete),
-        ],
       ),
     );
   }

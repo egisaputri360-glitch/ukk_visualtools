@@ -8,11 +8,26 @@ class PeminjamanPage extends StatefulWidget {
 }
 
 class _PeminjamanPageState extends State<PeminjamanPage> {
-  // Data dummy sesuai UI Figma kamu
+  // DATA DUMMY
   final List<Map<String, dynamic>> peminjamanList = [
-    {"nama": "Chella robiatul", "tgl": "26/01/2026", "status": "Pengajuan", "color": Color(0xFFC1F1FF)},
-    {"nama": "Clarissa Aurelia", "tgl": "26/01/2026", "status": "Dipinjam", "color": Color(0xFFFFAB76)},
-    {"nama": "Melati Tiara", "tgl": "26/01/2026", "status": "Ditolak", "color": Color(0xFFFF4D4D)},
+    {
+      "nama": "Chella robiatul",
+      "tgl": "26/01/2026",
+      "status": "Pengajuan",
+      "color": Color(0xFFC1F1FF),
+    },
+    {
+      "nama": "Clarissa Aurelia",
+      "tgl": "26/01/2026",
+      "status": "Dipinjam",
+      "color": Color(0xFFFFAB76),
+    },
+    {
+      "nama": "Melati Tiara",
+      "tgl": "26/01/2026",
+      "status": "Ditolak",
+      "color": Color(0xFFFF4D4D),
+    },
   ];
 
   @override
@@ -26,7 +41,7 @@ class _PeminjamanPageState extends State<PeminjamanPage> {
             Container(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 30),
               decoration: const BoxDecoration(
-                color: Color(0xFFB8D8A0), // Hijau Header
+                color: Color(0xFFB8D8A0),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30),
@@ -36,54 +51,66 @@ class _PeminjamanPageState extends State<PeminjamanPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    children: const [
-                      Icon(Icons.more_vert, size: 28),
-                      SizedBox(width: 8),
-                      Text(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.more_vert, size: 28),
+                        onPressed: () {
+                          Navigator.pushReplacementNamed(
+                              context, '/dashboard');
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
                         "Peminjaman",
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
+
+                  // SEARCH + ADD
                   Row(
                     children: [
-                      // Search Bar
                       Expanded(
                         child: Container(
                           height: 45,
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 15),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200.withOpacity(0.9),
+                            color:
+                                Colors.grey.shade200.withOpacity(0.9),
                             borderRadius: BorderRadius.circular(25),
                           ),
                           child: Row(
                             children: const [
                               Icon(Icons.search, color: Colors.grey),
                               SizedBox(width: 10),
-                              Text("Cari......", style: TextStyle(color: Colors.grey)),
+                              Text(
+                                "Cari......",
+                                style: TextStyle(color: Colors.grey),
+                              ),
                             ],
                           ),
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // TOMBOL PLUS (MIRIP UI FIGMA)
                       Container(
                         height: 45,
                         width: 45,
                         decoration: BoxDecoration(
                           color: const Color(0xFFB8D8A0),
-                          borderRadius: BorderRadius.circular(10), // Kotak melengkung
-                          border: Border.all(color: Colors.white, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            )
-                          ],
+                          borderRadius: BorderRadius.circular(10),
+                          border:
+                              Border.all(color: Colors.white, width: 2),
                         ),
-                        child: const Icon(Icons.add, color: Colors.white, size: 28),
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                       ),
                     ],
                   ),
@@ -93,12 +120,12 @@ class _PeminjamanPageState extends State<PeminjamanPage> {
 
             const SizedBox(height: 20),
 
-            // Judul Daftar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            // JUDUL
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: const Text(
+                child: Text(
                   "Daftar peminjaman",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -111,7 +138,7 @@ class _PeminjamanPageState extends State<PeminjamanPage> {
 
             const SizedBox(height: 10),
 
-            // ================= LIST DATA =================
+            // ================= LIST =================
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -122,9 +149,10 @@ class _PeminjamanPageState extends State<PeminjamanPage> {
                     margin: const EdgeInsets.only(bottom: 15),
                     padding: const EdgeInsets.all(15),
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 4, 4, 4),
+                      color: Colors.white, // ⬅️ FIX UTAMA
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.grey.shade300),
+                      border:
+                          Border.all(color: Colors.grey.shade300),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.05),
@@ -138,30 +166,38 @@ class _PeminjamanPageState extends State<PeminjamanPage> {
                       children: [
                         Text(
                           item["nama"],
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           item["tgl"],
-                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
                         ),
-                        const SizedBox(height: 5),
-                        // Tombol Status (Mirip Figma)
+                        const SizedBox(height: 10),
                         Align(
                           alignment: Alignment.bottomRight,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: item["color"],
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(color: Colors.black87, width: 0.5),
+                              borderRadius:
+                                  BorderRadius.circular(15),
                             ),
                             child: Text(
                               item["status"],
                               style: const TextStyle(
-                                fontSize: 12, 
+                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic
+                                fontStyle: FontStyle.italic,
                               ),
                             ),
                           ),

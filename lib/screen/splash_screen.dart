@@ -20,24 +20,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF7FA05A),
+      backgroundColor: const Color(0xFF7FA05A), // hijau kamu
       body: Center(
-        child: Container(
-          width: 200,
-          height: 200,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white.withOpacity(0.9),
-          ),
-          child: const Center(
-            child: Text(
-              'VisualTools',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+        child: Image.asset(
+          'assets/images/visualtools_logo.png',
+          width: 220, // 👈 logo BESAR & jelas
+          fit: BoxFit.contain,
         ),
       ),
     );

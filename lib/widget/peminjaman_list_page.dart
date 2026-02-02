@@ -6,9 +6,14 @@ class PeminjamanListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // ⬅️ FIX BACKGROUND HITAM
       appBar: AppBar(
         backgroundColor: const Color(0xFFB9D7A1),
-        title: const Text('Peminjaman'),
+        title: const Text(
+          'Peminjaman',
+          style: TextStyle(color: Colors.black),
+        ),
+        iconTheme: const IconThemeData(color: Colors.black),
         elevation: 0,
         actions: [
           IconButton(
@@ -32,7 +37,7 @@ class PeminjamanListPage extends StatelessWidget {
               child: const TextField(
                 decoration: InputDecoration(
                   icon: Icon(Icons.search),
-                  hintText: 'Cari.....',
+                  hintText: 'Cari...',
                   border: InputBorder.none,
                 ),
               ),
@@ -47,7 +52,6 @@ class PeminjamanListPage extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            // CARD DETAIL (EXPANDED)
             detailPeminjamanCard(),
 
             statusOnlyCard(
@@ -69,12 +73,13 @@ class PeminjamanListPage extends StatelessWidget {
     );
   }
 
-  // CARD DETAIL PEMINJAMAN
+  // ================= CARD DETAIL =================
   Widget detailPeminjamanCard() {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
+        color: Colors.white, // ⬅️ CARD PUTIH
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFB9D7A1)),
       ),
@@ -82,7 +87,7 @@ class PeminjamanListPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Chella rohbatul',
+            'Chella Rohbatul',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const Text(
@@ -134,6 +139,7 @@ class PeminjamanListPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
                 ),
               )
@@ -144,7 +150,7 @@ class PeminjamanListPage extends StatelessWidget {
     );
   }
 
-  // ROW ALAT
+  // ================= ROW ALAT =================
   Widget alatRow(String namaAlat) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -158,7 +164,7 @@ class PeminjamanListPage extends StatelessWidget {
     );
   }
 
-  // CARD STATUS SAJA
+  // ================= CARD STATUS SAJA =================
   Widget statusOnlyCard({
     required String nama,
     required String tanggal,
@@ -169,6 +175,7 @@ class PeminjamanListPage extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
+        color: Colors.white, // ⬅️ CARD PUTIH
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFB9D7A1)),
       ),
@@ -184,8 +191,7 @@ class PeminjamanListPage extends StatelessWidget {
               ),
               Text(
                 tanggal,
-                style:
-                    const TextStyle(fontSize: 12, color: Colors.grey),
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
           ),
@@ -201,6 +207,7 @@ class PeminjamanListPage extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
             ),
           )
