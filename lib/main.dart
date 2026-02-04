@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:krpl/widget/peminjaman_page.dart'; // ← IMPOR INI
 import 'package:krpl/widget/riwayat_denda_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -10,7 +11,7 @@ import 'screen/dashboard_screen.dart';
 // MASTER PAGE
 import 'widget/alat_page.dart';
 import 'widget/kategori_page.dart';
-import 'widget/peminjaman_page.dart';
+// import 'widget/peminjaman_list_page.dart'; // ← HAPUS/JIKA TIDAK DIPAKAI
 import 'screen/user_page.dart';
 
 Future<void> main() async {
@@ -43,7 +44,7 @@ class MyApp extends StatelessWidget {
         '/alat': (context) => const AlatScreen(),
         '/pengguna': (context) => UserPage(),
         '/kategori': (context) => const KategoriPage(),
-        '/peminjaman': (context) => const PeminjamanPage(),
+        '/peminjaman': (context) => const PeminjamanPage(), 
       },
     );
   }
